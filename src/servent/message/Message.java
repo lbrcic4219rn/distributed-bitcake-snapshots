@@ -2,6 +2,7 @@ package servent.message;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import app.ServentInfo;
 
@@ -48,12 +49,7 @@ public interface Message extends Serializable {
 	 * Information about the receiver of the message.
 	 */
 	ServentInfo getReceiverInfo();
-	
-	/**
-	 * Message color - white means that the message was sent before a local snapshot
-	 * was created, and red (non-white) means it is after.
-	 */
-	boolean isWhite();
+
 	
 	/**
 	 * Message type. Mainly used to decide which handler will work on this message.
@@ -82,18 +78,8 @@ public interface Message extends Serializable {
 	 * the receiver being changed to the one with the specified <code>id</code>.
 	 */
 	Message changeReceiver(Integer newReceiverId);
-	
-	/**
-	 * Alters the message and returns a new copy with everything intact, except
-	 * the color being changed to red.
-	 */
-	Message setRedColor();
-	
-	/**
-	 * Alters the message and returns a new copy with everything intact, except
-	 * the color being changed to white.
-	 */
-	Message setWhiteColor();
+
+
 	
 	/**
 	 * This method is invoked by the frameworks sender code. It is invoked
@@ -102,5 +88,7 @@ public interface Message extends Serializable {
 	 * we are sending the message.
 	 */
 	void sendEffect();
+
+	Map<Integer, Integer> getSenderVectorClock();
 	
 }

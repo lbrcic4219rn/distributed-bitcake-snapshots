@@ -61,10 +61,7 @@ public class FifoSendWorker implements Runnable, Cancellable {
 				 * Transaction message, which is at the bottom of this sync.
 				 */
 				synchronized (AppConfig.colorLock) {
-					if (AppConfig.isWhite.get() == false && messageToSend.getMessageType() != MessageType.CL_MARKER) {
-						MessageUtil.pendingMessages.get(neighbor).put(messageToSend);
-						continue;
-					}
+
 				
 					if (MessageUtil.MESSAGE_UTIL_PRINTING) {
 						AppConfig.timestampedStandardPrint("Sending message " + messageToSend);

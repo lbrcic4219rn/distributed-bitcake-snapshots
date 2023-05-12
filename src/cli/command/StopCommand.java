@@ -3,6 +3,7 @@ package cli.command;
 import java.util.List;
 
 import app.AppConfig;
+import app.CausalBroadcastShared;
 import app.snapshot_bitcake.SnapshotCollector;
 import cli.CLIParser;
 import servent.SimpleServentListener;
@@ -37,6 +38,7 @@ public class StopCommand implements CLICommand {
 			senderWorker.stop();
 		}
 		snapshotCollector.stop();
+		CausalBroadcastShared.shutdown();
 	}
 
 }

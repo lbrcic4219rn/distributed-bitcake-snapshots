@@ -37,7 +37,7 @@ public class DelayedMessageSender implements Runnable {
 		ServentInfo receiverInfo = messageToSend.getReceiverInfo();
 		
 		if (MessageUtil.MESSAGE_UTIL_PRINTING) {
-			AppConfig.timestampedStandardPrint("Sending message " + messageToSend);
+			//AppConfig.timestampedStandardPrint("Sending message " + messageToSend);
 		}
 		
 		try {
@@ -49,10 +49,8 @@ public class DelayedMessageSender implements Runnable {
 			 * All messages that declare their own stuff (eg. LYTellMessage) will have
 			 * to override setRedColor() because of this.
 			 */
-			synchronized (AppConfig.colorLock) {
-				if (AppConfig.isWhite.get() == false) {
-					messageToSend = messageToSend.setRedColor();
-				}
+
+
 				Socket sendSocket = new Socket(receiverInfo.getIpAddress(), receiverInfo.getListenerPort());
 				
 				ObjectOutputStream oos = new ObjectOutputStream(sendSocket.getOutputStream());
@@ -62,7 +60,7 @@ public class DelayedMessageSender implements Runnable {
 				sendSocket.close();
 				
 				messageToSend.sendEffect();
-			}
+
 		} catch (IOException e) {
 			AppConfig.timestampedErrorPrint("Couldn't send message: " + messageToSend.toString());
 		}

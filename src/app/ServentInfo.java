@@ -38,6 +38,11 @@ public class ServentInfo implements Serializable {
 	public List<Integer> getNeighbors() {
 		return neighbors;
 	}
+
+	/**
+	 * Checks if some ID is the ID of one of our neighbors
+	*/
+	public boolean isNeighbor(int possibleNeighborId){return neighbors.contains(possibleNeighborId);}
 	
 	@Override
 	public String toString() {
