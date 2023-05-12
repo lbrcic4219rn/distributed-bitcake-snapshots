@@ -1,0 +1,12 @@
+18:48:07 - Starting servent [3|localhost|1400]
+18:48:07 - Pausing for 45000 ms
+18:48:52 - 152
+18:48:52 - 202
+18:48:52 - 202
+18:48:52 - 2
+18:48:52 - 102
+18:48:52 - 152
+18:48:52 - 202
+18:48:52 - Pending messages are empty: true
+18:48:52 - Pausing for 2000 ms
+18:48:54 - Stopping...

@@ -1,0 +1,29 @@
+19:18:51 - Starting servent [0|localhost|1100]
+19:18:51 - Pausing for 1000 ms
+19:18:52 - Pausing for 45000 ms
+19:19:03 - Recorded bitcake amount: 834
+19:19:03 - Unreceived bitcake amount: 0 from 1
+19:19:03 - Unreceived bitcake amount: 0 from 2
+19:19:03 - Unreceived bitcake amount: 155 from 6
+19:19:03 - Sent bitcake amount: 0 from 1
+19:19:03 - Sent bitcake amount: 0 from 2
+19:19:03 - Sent bitcake amount: 0 from 6
+19:19:03 - Total node bitcake amount: 989
+19:19:23 - Recorded bitcake amount: 1023
+19:19:23 - Unreceived bitcake amount: 0 from 1
+19:19:23 - Unreceived bitcake amount: 0 from 2
+19:19:23 - Unreceived bitcake amount: 0 from 6
+19:19:23 - Sent bitcake amount: 0 from 1
+19:19:23 - Sent bitcake amount: 0 from 2
+19:19:23 - Sent bitcake amount: 0 from 6
+19:19:23 - Total node bitcake amount: 1023
+19:19:37 - 152
+19:19:37 - 202
+19:19:37 - 202
+19:19:37 - 2
+19:19:37 - 103
+19:19:37 - 153
+19:19:37 - 202
+19:19:37 - Pending messages are empty: true
+19:19:37 - Pausing for 2000 ms
+19:19:39 - Stopping...

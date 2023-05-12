@@ -1,0 +1,13 @@
+18:48:07 - Starting servent [5|localhost|1600]
+18:48:07 - Pausing for 1000 ms
+18:48:08 - Pausing for 25000 ms
+18:48:33 - Pausing for 20000 ms
+18:48:40 - Recorded bitcake amount for 0 = 970
+18:48:40 - Recorded bitcake amount for 1 = 669
+18:48:40 - Recorded bitcake amount for 2 = 756
+18:48:40 - Recorded bitcake amount for 3 = 2068
+18:48:40 - Recorded bitcake amount for 4 = 732
+18:48:40 - Recorded bitcake amount for 5 = 958
+18:48:40 - Recorded bitcake amount for 6 = 847
+18:48:40 - System bitcake count: 7000
+18:48:53 - Stopping...
