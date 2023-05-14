@@ -2,10 +2,13 @@ package servent.message;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import app.AppConfig;
+import app.CausalBroadcastShared;
 import app.ServentInfo;
 
 /**
@@ -23,8 +26,7 @@ public class BasicMessage implements Message {
 	private final ServentInfo receiverInfo;
 	private final List<ServentInfo> routeList;
 	private final String messageText;
-	private final boolean white;
-	
+	private final Map<Integer, Integer> senderVectorClock;
 	//This gives us a unique id - incremented in every natural constructor.
 	private static AtomicInteger messageCounter = new AtomicInteger(0);
 	private final int messageId;
@@ -33,7 +35,7 @@ public class BasicMessage implements Message {
 		this.type = type;
 		this.originalSenderInfo = originalSenderInfo;
 		this.receiverInfo = receiverInfo;
-		this.white = AppConfig.isWhite.get();
+		this.senderVectorClock = new ConcurrentHashMap<>(CausalBroadcastShared.getVectorClock());
 		this.routeList = new ArrayList<>();
 		this.messageText = "";
 		
@@ -45,7 +47,7 @@ public class BasicMessage implements Message {
 		this.type = type;
 		this.originalSenderInfo = originalSenderInfo;
 		this.receiverInfo = receiverInfo;
-		this.white = AppConfig.isWhite.get();
+		this.senderVectorClock = new ConcurrentHashMap<>(CausalBroadcastShared.getVectorClock());
 		this.routeList = new ArrayList<>();
 		this.messageText = messageText;
 		
@@ -68,11 +70,6 @@ public class BasicMessage implements Message {
 	}
 	
 	@Override
-	public boolean isWhite() {
-		return white;
-	}
-	
-	@Override
 	public List<ServentInfo> getRoute() {
 		return routeList;
 	}
@@ -88,11 +85,12 @@ public class BasicMessage implements Message {
 	}
 	
 	protected BasicMessage(MessageType type, ServentInfo originalSenderInfo, ServentInfo receiverInfo,
-			boolean white, List<ServentInfo> routeList, String messageText, int messageId) {
+						   List<ServentInfo> routeList, String messageText, int messageId,
+						   Map<Integer, Integer> senderVectorClock) {
 		this.type = type;
 		this.originalSenderInfo = originalSenderInfo;
 		this.receiverInfo = receiverInfo;
-		this.white = white;
+		this.senderVectorClock = senderVectorClock;
 		this.routeList = routeList;
 		this.messageText = messageText;
 		
@@ -111,7 +109,7 @@ public class BasicMessage implements Message {
 		List<ServentInfo> newRouteList = new ArrayList<>(routeList);
 		newRouteList.add(newRouteItem);
 		Message toReturn = new BasicMessage(getMessageType(), getOriginalSenderInfo(),
-				getReceiverInfo(), isWhite(), newRouteList, getMessageText(), getMessageId());
+				getReceiverInfo(), newRouteList, getMessageText(), getMessageId(), getSenderVectorClock());
 		
 		return toReturn;
 	}
@@ -126,7 +124,7 @@ public class BasicMessage implements Message {
 			ServentInfo newReceiverInfo = AppConfig.getInfoById(newReceiverId);
 			
 			Message toReturn = new BasicMessage(getMessageType(), getOriginalSenderInfo(),
-					newReceiverInfo, isWhite(), getRoute(), getMessageText(), getMessageId());
+					newReceiverInfo, getRoute(), getMessageText(), getMessageId(), getSenderVectorClock());
 			
 			return toReturn;
 		} else {
@@ -135,22 +133,6 @@ public class BasicMessage implements Message {
 			return null;
 		}
 		
-	}
-	
-	@Override
-	public Message setRedColor() {
-		Message toReturn = new BasicMessage(getMessageType(), getOriginalSenderInfo(),
-				getReceiverInfo(), false, getRoute(), getMessageText(), getMessageId());
-		
-		return toReturn;
-	}
-	
-	@Override
-	public Message setWhiteColor() {
-		Message toReturn = new BasicMessage(getMessageType(), getOriginalSenderInfo(),
-				getReceiverInfo(), true, getRoute(), getMessageText(), getMessageId());
-		
-		return toReturn;
 	}
 	
 	/**
@@ -195,5 +177,10 @@ public class BasicMessage implements Message {
 	@Override
 	public void sendEffect() {
 		
+	}
+
+	@Override
+	public Map<Integer, Integer> getSenderVectorClock() {
+		return null;
 	}
 }

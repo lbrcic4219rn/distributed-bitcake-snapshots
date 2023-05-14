@@ -14,18 +14,19 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author bmilojkovic
  *
  */
-public class CLSnapshotResult implements Serializable {
-
-	private static final long serialVersionUID = -1443515806440079979L;
+public class ABSnapshotResult implements Serializable {
 
 	private final int serventId;
 	private final int recordedAmount;
-	private final Map<String, List<Integer>> allChannelMessages;
-	
-	public CLSnapshotResult(int serventId, int recordedAmount, Map<String, List<Integer>> allChannelMessages) {
+	private final Map<Integer, Integer> giveHistory;
+	private final Map<Integer, Integer> getHistory;
+
+	public ABSnapshotResult(int serventId, int recordedAmount,
+							Map<Integer, Integer> giveHistory, Map<Integer, Integer> getHistory) {
 		this.serventId = serventId;
 		this.recordedAmount = recordedAmount;
-		this.allChannelMessages = new ConcurrentHashMap<>(allChannelMessages);
+		this.giveHistory = new ConcurrentHashMap<>(giveHistory);
+		this.getHistory = new ConcurrentHashMap<>(getHistory);
 	}
 	public int getServentId() {
 		return serventId;
@@ -33,8 +34,11 @@ public class CLSnapshotResult implements Serializable {
 	public int getRecordedAmount() {
 		return recordedAmount;
 	}
-	public Map<String, List<Integer>> getAllChannelMessages() {
-		return allChannelMessages;
+	public Map<Integer, Integer> getGiveHistory() {
+		return giveHistory;
+	}
+	public Map<Integer, Integer> getGetHistory() {
+		return getHistory;
 	}
 	
 	

@@ -1,8 +1,10 @@
 package servent.handler;
 
 import app.AppConfig;
+import app.CausalBroadcastShared;
+import app.snapshot_bitcake.AcharyaBadrinathBitcakeManager;
 import app.snapshot_bitcake.BitcakeManager;
-import app.snapshot_bitcake.LaiYangBitcakeManager;
+import app.snapshot_bitcake.AlagarVenkatesanBitcakeManager;
 import servent.message.Message;
 import servent.message.MessageType;
 
@@ -28,21 +30,22 @@ public class TransactionHandler implements MessageHandler {
 				AppConfig.timestampedErrorPrint("Couldn't parse amount: " + amountString);
 				return;
 			}
-			
-			bitcakeManager.addSomeBitcakes(amountNumber);
 
+			synchronized (CausalBroadcastShared.gatheringChannel) {
+				bitcakeManager.addSomeBitcakes(amountNumber);
+				if (bitcakeManager instanceof AcharyaBadrinathBitcakeManager) {
+					AcharyaBadrinathBitcakeManager abBitcakeManager = (AcharyaBadrinathBitcakeManager) bitcakeManager;
 
+					abBitcakeManager.recordGetTransaction(clientMessage.getOriginalSenderInfo().getId(), amountNumber);
+				}
+				if (bitcakeManager instanceof AlagarVenkatesanBitcakeManager) {
+					AlagarVenkatesanBitcakeManager avBitcakeManager = (AlagarVenkatesanBitcakeManager) bitcakeManager;
 
-			synchronized (AppConfig.colorLock) {
-				if (bitcakeManager instanceof LaiYangBitcakeManager && clientMessage.isWhite()) {
-					LaiYangBitcakeManager lyBitcakeManager = (LaiYangBitcakeManager)bitcakeManager;
-					
-					lyBitcakeManager.recordGetTransaction(clientMessage.getOriginalSenderInfo().getId(), amountNumber);
+					avBitcakeManager.recordGetTransaction(clientMessage.getSenderVectorClock(),clientMessage.getOriginalSenderInfo().getId(), amountNumber);
 				}
 			}
 		} else {
 			AppConfig.timestampedErrorPrint("Transaction handler got: " + clientMessage);
 		}
 	}
-
 }

@@ -71,7 +71,7 @@ public class MultipleServentStarter {
 		
 		for(int i = 0; i < serventCount; i++) {
 			try {
-				ProcessBuilder builder = new ProcessBuilder("java", "-cp", "out\\production\\KiDS-Vezbe8-Sofija", "app.ServentMain",
+				ProcessBuilder builder = new ProcessBuilder("java", "-cp", "out/production/kids_d2_luka_brcic_rn4219/", "app.ServentMain",
 						testName+"/servent_list.properties", String.valueOf(i));
 				
 				//We use files to read and write.
@@ -105,9 +105,7 @@ public class MultipleServentStarter {
 	}
 	
 	public static void main(String[] args) {
-//		startServentTest("naive_snapshot");
-//		startServentTest("cl_snapshot");
-		startServentTest("ly_snapshot");
+		startServentTest("ab_snapshot");
+//		startServentTest("av_snapshot");
 	}
-
 }

@@ -1,13 +1,21 @@
-18:48:07 - Starting servent [6|localhost|1700]
-18:48:07 - Pausing for 2000 ms
-18:48:11 - Pausing for 40000 ms
-18:48:51 - 152
-18:48:51 - 202
-18:48:51 - 202
-18:48:51 - 2
-18:48:51 - 102
-18:48:51 - 152
-18:48:51 - 202
-18:48:51 - Pending messages are empty: true
-18:48:51 - Pausing for 2000 ms
-18:48:53 - Stopping...
+13:15:09 - Starting servent [6|localhost|1700]
+13:15:09 - Pausing for 2000 ms
+13:15:10 - Got message [0|81|9|TRANSACTION|6]
+13:15:10 - Got message [0|61|3|TRANSACTION|6]
+13:15:10 - Got message [0|114|7|TRANSACTION|6]
+13:15:10 - Got message [5|78|9|TRANSACTION|6]
+13:15:10 - Got message [5|79|4|TRANSACTION|6]
+13:15:10 - Got message [0|100|5|TRANSACTION|6]
+13:15:10 - Got message [0|43|4|TRANSACTION|6]
+13:15:10 - Got message [5|146|6|TRANSACTION|6]
+13:15:11 - Got message [2|199|3|TRANSACTION|6]
+13:15:11 - Got message [5|94|6|TRANSACTION|6]
+13:15:11 - Got message [0|77|4|TRANSACTION|6]
+13:15:11 - Got message [0|145|3|TRANSACTION|6]
+13:15:11 - Got message [2|45|5|TRANSACTION|6]
+13:15:11 - Got message [2|77|5|TRANSACTION|6]
+13:15:11 - Got message [0|90|5|TRANSACTION|6]
+13:15:11 - Got message [5|91|9|TRANSACTION|6]
+13:15:11 - Got message [0|135|7|TRANSACTION|6]
+13:15:11 - Got message [5|6|1|TRANSACTION|6]
+13:15:11 - Got message [5|27|3|TRANSACTION|6]

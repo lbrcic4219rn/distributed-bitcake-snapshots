@@ -20,15 +20,27 @@ public class NullSnapshotCollector implements SnapshotCollector {
 	}
 
 	@Override
-	public void addNaiveSnapshotInfo(String snapshotSubject, int amount) {}
+	public void addABSnapshotInfo(int id, ABSnapshotResult abSnapshotResult) {
+
+	}
 
 	@Override
-	public void addCLSnapshotInfo(int id, CLSnapshotResult clSnapshotResult) {}
+	public void addDoneMessage(int id) {
+
+	}
 
 	@Override
-	public void addLYSnapshotInfo(int id, LYSnapshotResult lySnapshotResult) {}
+	public void setTerminateNotArrived() {
+
+	}
+
 
 	@Override
 	public void startCollecting() {}
+
+	@Override
+	public boolean isCollecting() {
+		return false;
+	}
 
 }

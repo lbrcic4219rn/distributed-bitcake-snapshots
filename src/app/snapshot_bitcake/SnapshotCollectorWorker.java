@@ -4,12 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import app.AppConfig;
-import servent.message.Message;
-import servent.message.snapshot.NaiveAskAmountMessage;
-import servent.message.util.MessageUtil;
 
 /**
  * Main snapshot collector class. Has support for Naive, Chandy-Lamport
@@ -21,34 +19,31 @@ import servent.message.util.MessageUtil;
 public class SnapshotCollectorWorker implements SnapshotCollector {
 
 	private volatile boolean working = true;
-	
-	private AtomicBoolean collecting = new AtomicBoolean(false);
-	
-	private Map<String, Integer> collectedNaiveValues = new ConcurrentHashMap<>();
 
-	private Map<Integer, CLSnapshotResult> collectedCLValues = new ConcurrentHashMap<>();
-	private Map<Integer, LYSnapshotResult> collectedLYValues = new ConcurrentHashMap<>();
-	
-	private SnapshotType snapshotType = SnapshotType.NAIVE;
-	
+	private volatile boolean terminateNotArrived = true;
+
+	private AtomicBoolean collecting = new AtomicBoolean(false);
+
+	private Map<Integer, ABSnapshotResult> collectedABValues = new ConcurrentHashMap<>();
+	private List<Integer> collectedDoneMessages = new CopyOnWriteArrayList<>();
+
+	private SnapshotType snapshotType;
+
 	private BitcakeManager bitcakeManager;
 
 	public SnapshotCollectorWorker(SnapshotType snapshotType) {
 		this.snapshotType = snapshotType;
 		
 		switch(snapshotType) {
-		case NAIVE:
-			bitcakeManager = new NaiveBitcakeManager();
-			break;
-		case CHANDY_LAMPORT:
-			bitcakeManager = new ChandyLamportBitcakeManager();
-			break;
-		case LAI_YANG:
-			bitcakeManager = new LaiYangBitcakeManager();
-			break;
-		case NONE:
-			AppConfig.timestampedErrorPrint("Making snapshot collector without specifying type. Exiting...");
-			System.exit(0);
+			case ACHARYA_BADRINATH:
+				bitcakeManager = new AcharyaBadrinathBitcakeManager();
+				break;
+			case ALAGAR_VENKATESAN:
+				bitcakeManager = new AlagarVenkatesanBitcakeManager();
+				break;
+			case NONE:
+				AppConfig.timestampedErrorPrint("Making snapshot collector without specifying type. Exiting...");
+				System.exit(0);
 		}
 	}
 	
@@ -86,57 +81,35 @@ public class SnapshotCollectorWorker implements SnapshotCollector {
 			
 			//1 send asks
 			switch (snapshotType) {
-			case NAIVE:
-				Message askMessage = new NaiveAskAmountMessage(AppConfig.myServentInfo, null);
-				
-				for (Integer neighbor : AppConfig.myServentInfo.getNeighbors()) {
-					askMessage = askMessage.changeReceiver(neighbor);
-					
-					MessageUtil.sendMessage(askMessage);
-				}
-				collectedNaiveValues.put("node"+AppConfig.myServentInfo.getId(), bitcakeManager.getCurrentBitcakeAmount());
-				break;
+				case ACHARYA_BADRINATH:
+					((AcharyaBadrinathBitcakeManager)bitcakeManager).sendToken(this);
 
 
-			case CHANDY_LAMPORT:
-				((ChandyLamportBitcakeManager)bitcakeManager).markerEvent(AppConfig.myServentInfo.getId());
-				break;
+				case ALAGAR_VENKATESAN:
+					((AlagarVenkatesanBitcakeManager)bitcakeManager).sendToken();
 
-
-			case LAI_YANG:
-				((LaiYangBitcakeManager)bitcakeManager).markerEvent(AppConfig.myServentInfo.getId(), this);
-				break;
-			case NONE:
-				//Shouldn't be able to come here. See constructor. 
-				break;
+				case NONE:
+					//Shouldn't be able to come here. See constructor.
+					break;
 			}
 			
 			//2 wait for responses or finish
 			boolean waiting = true;
 			while (waiting) {
 				switch (snapshotType) {
-				case NAIVE:
-					if (collectedNaiveValues.size() == AppConfig.getServentCount()) {
-						waiting = false;
-					}
-					break;
-
-
-
-				case CHANDY_LAMPORT:
-					if (collectedCLValues.size() == AppConfig.getServentCount()) {
-						waiting = false;
-					}
-					break;
-
-
-				case LAI_YANG:
-					if (collectedLYValues.size() == AppConfig.getServentCount()) {
-						waiting = false;
-					}
-					break;
+					case ACHARYA_BADRINATH:
+						if (collectedABValues.size() == AppConfig.getServentCount()) {
+							waiting = false;
+						}
+						break;
+					case ALAGAR_VENKATESAN:
+						if (collectedDoneMessages.size() +1 == AppConfig.getServentCount()) {
+							waiting = false;
+							((AlagarVenkatesanBitcakeManager)bitcakeManager).sendTerminate(this);
+						}
+						break;
 				case NONE:
-					//Shouldn't be able to come here. See constructor. 
+					//Shouldn't be able to come here. See constructor.
 					break;
 				}
 				
@@ -154,104 +127,66 @@ public class SnapshotCollectorWorker implements SnapshotCollector {
 			//print
 			int sum;
 			switch (snapshotType) {
-			case NAIVE:
-				sum = 0;
-				for (Entry<String, Integer> itemAmount : collectedNaiveValues.entrySet()) {
-					sum += itemAmount.getValue();
-					AppConfig.timestampedStandardPrint(
-							"Info for " + itemAmount.getKey() + " = " + itemAmount.getValue() + " bitcake");
-				}
-				
-				AppConfig.timestampedStandardPrint("System bitcake count: " + sum);
-				
-				collectedNaiveValues.clear(); //reset for next invocation
-				break;
-
-
-
-
-			case CHANDY_LAMPORT:
-				sum = 0;
-				for (Entry<Integer, CLSnapshotResult> nodeResult : collectedCLValues.entrySet()) {
-					sum += nodeResult.getValue().getRecordedAmount();
-					AppConfig.timestampedStandardPrint(
-							"Recorded bitcake amount for " + nodeResult.getKey() + " = " + nodeResult.getValue().getRecordedAmount());
-					if (nodeResult.getValue().getAllChannelMessages().size() == 0) {
-						AppConfig.timestampedStandardPrint("No channel bitcake for " + nodeResult.getKey());
-					} else {
-						for (Entry<String, List<Integer>> channelMessages : nodeResult.getValue().getAllChannelMessages().entrySet()) {
-							int channelSum = 0;
-							for (Integer val : channelMessages.getValue()) {
-								channelSum += val;
-							}
-							AppConfig.timestampedStandardPrint("Channel bitcake for " + channelMessages.getKey() +
-									": " + channelMessages.getValue() + " with channel bitcake sum: " + channelSum);
-							
-							sum += channelSum;
-						}
+				case ACHARYA_BADRINATH:
+					sum = 0;
+					for (Entry<Integer, ABSnapshotResult> nodeResult : collectedABValues.entrySet()) {
+						sum += nodeResult.getValue().getRecordedAmount();
+						AppConfig.timestampedStandardPrint(
+								"Recorded bitcake amount for " + nodeResult.getKey() + " = " + nodeResult.getValue().getRecordedAmount());
 					}
-				}
-				
-				AppConfig.timestampedStandardPrint("System bitcake count: " + sum);
-				
-				collectedCLValues.clear(); //reset for next invocation
-				break;
 
+					for(int i = 0; i < AppConfig.getServentCount(); i++) {
+						for (int j = 0; j < AppConfig.getServentCount(); j++) {
+							if (i != j) {
+								if (AppConfig.getInfoById(i).getNeighbors().contains(j) &&
+										AppConfig.getInfoById(j).getNeighbors().contains(i)) {
+									int ijAmount = collectedABValues.get(i).getGiveHistory().get(j);
+									int jiAmount = collectedABValues.get(j).getGetHistory().get(i);
 
-
-			case LAI_YANG:
-				sum = 0;
-				for (Entry<Integer, LYSnapshotResult> nodeResult : collectedLYValues.entrySet()) {
-					sum += nodeResult.getValue().getRecordedAmount();
-					AppConfig.timestampedStandardPrint(
-							"Recorded bitcake amount for " + nodeResult.getKey() + " = " + nodeResult.getValue().getRecordedAmount());
-				}
-				for(int i = 0; i < AppConfig.getServentCount(); i++) {
-					for (int j = 0; j < AppConfig.getServentCount(); j++) {
-						if (i != j) {
-							if (AppConfig.getInfoById(i).getNeighbors().contains(j) &&
-								AppConfig.getInfoById(j).getNeighbors().contains(i)) {
-								int ijAmount = collectedLYValues.get(i).getGiveHistory().get(j);
-								int jiAmount = collectedLYValues.get(j).getGetHistory().get(i);
-								
-								if (ijAmount != jiAmount) {
-									String outputString = String.format(
-											"Unreceived bitcake amount: %d from servent %d to servent %d",
-											ijAmount - jiAmount, i, j);
-									AppConfig.timestampedStandardPrint(outputString);
-									sum += ijAmount - jiAmount;
+									if (ijAmount != jiAmount) {
+										String outputString = String.format(
+												"Unreceived bitcake amount: %d from servent %d to servent %d",
+												ijAmount - jiAmount, i, j);
+										AppConfig.timestampedStandardPrint(outputString);
+										sum += ijAmount - jiAmount;
+									}
 								}
 							}
 						}
 					}
-				}
-				
-				AppConfig.timestampedStandardPrint("System bitcake count: " + sum);
-				
-				collectedLYValues.clear(); //reset for next invocation
-				break;
-			case NONE:
-				//Shouldn't be able to come here. See constructor. 
-				break;
+
+					AppConfig.timestampedStandardPrint("System bitcake count: " + sum);
+
+					collectedABValues.clear(); //reset for next invocation
+					break;
+
+				case ALAGAR_VENKATESAN:
+					while(terminateNotArrived);
+					{
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					collectedDoneMessages.clear();
+				case NONE:
+					//Shouldn't be able to come here. See constructor.
+					break;
 			}
 			collecting.set(false);
 		}
 
 	}
-	
+
 	@Override
-	public void addNaiveSnapshotInfo(String snapshotSubject, int amount) {
-		collectedNaiveValues.put(snapshotSubject, amount);
+	public void addABSnapshotInfo(int id, ABSnapshotResult abSnapshotResult) {
+		collectedABValues.put(id, abSnapshotResult);
 	}
 
 	@Override
-	public void addCLSnapshotInfo(int id, CLSnapshotResult clSnapshotResult) {
-		collectedCLValues.put(id, clSnapshotResult);
-	}
-	
-	@Override
-	public void addLYSnapshotInfo(int id, LYSnapshotResult lySnapshotResult) {
-		collectedLYValues.put(id, lySnapshotResult);
+	public void addDoneMessage(int id) {
+		collectedDoneMessages.add(id);
 	}
 	
 	@Override
@@ -262,10 +197,19 @@ public class SnapshotCollectorWorker implements SnapshotCollector {
 			AppConfig.timestampedErrorPrint("Tried to start collecting before finished with previous.");
 		}
 	}
+
+	@Override
+	public boolean isCollecting() {
+		return collecting.get();
+	}
 	
 	@Override
 	public void stop() {
 		working = false;
+	}
+
+	public void setTerminateNotArrived(){
+		terminateNotArrived = false;
 	}
 
 }
