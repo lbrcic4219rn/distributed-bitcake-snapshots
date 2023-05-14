@@ -92,7 +92,7 @@ public class AlagarVenkatesanBitcakeManager implements BitcakeManager {
 	}
 
 	public void receiveToken(Map<Integer, Integer> tokenVectorClock, int initiatorId){
-		Message doneMessage=null;
+		Message doneMessage = null;
 		synchronized (CausalBroadcastShared.gatheringChannel) {
 			for(Integer neighbor : AppConfig.myServentInfo.getNeighbors()) {
 				getChannel.put(neighbor, 0);
@@ -150,14 +150,14 @@ public class AlagarVenkatesanBitcakeManager implements BitcakeManager {
 	}
 
 	public void recordGetTransaction(Map<Integer, Integer> senderVectorClock,int neighbor, int amount) {
-		if(tokenVectorClock!=null){
-			if(senderVectorClock.get(initiatorId)<=tokenVectorClock.get(initiatorId))
+		if(tokenVectorClock != null){
+			if(senderVectorClock.get(initiatorId) <= tokenVectorClock.get(initiatorId))
 				getChannel.compute(neighbor, new AlagarVenkatesanBitcakeManager.MapValueUpdater(amount));
 		}
 	}
 	public void recordGiveTransaction(Map<Integer, Integer> senderVectorClock,int neighbor, int amount) {
-		if(tokenVectorClock!=null){
-			if(senderVectorClock.get(initiatorId)<=tokenVectorClock.get(initiatorId))
+		if(tokenVectorClock != null){
+			if(senderVectorClock.get(initiatorId) <= tokenVectorClock.get(initiatorId))
 				giveChannel.compute(neighbor, new AlagarVenkatesanBitcakeManager.MapValueUpdater(amount));
 		}
 	}

@@ -20,7 +20,7 @@ public class TokenHandler implements MessageHandler {
             if(bitcakeManager instanceof AcharyaBadrinathBitcakeManager)
                 ((AcharyaBadrinathBitcakeManager)bitcakeManager).sendTell(clientMessage.getOriginalSenderInfo().getId());
             if(bitcakeManager instanceof AlagarVenkatesanBitcakeManager)
-                ((AlagarVenkatesanBitcakeManager)bitcakeManager).receiveToken(clientMessage.getSenderVectorClock(),clientMessage.getOriginalSenderInfo().getId());
+                ((AlagarVenkatesanBitcakeManager)bitcakeManager).receiveToken(clientMessage.getSenderVectorClock(), clientMessage.getOriginalSenderInfo().getId());
         } catch (Exception e) {
             e.printStackTrace();
         }

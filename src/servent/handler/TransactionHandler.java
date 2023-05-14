@@ -41,7 +41,7 @@ public class TransactionHandler implements MessageHandler {
 				if (bitcakeManager instanceof AlagarVenkatesanBitcakeManager) {
 					AlagarVenkatesanBitcakeManager avBitcakeManager = (AlagarVenkatesanBitcakeManager) bitcakeManager;
 
-					avBitcakeManager.recordGetTransaction(clientMessage.getSenderVectorClock(),clientMessage.getOriginalSenderInfo().getId(), amountNumber);
+					avBitcakeManager.recordGetTransaction(clientMessage.getSenderVectorClock(), clientMessage.getOriginalSenderInfo().getId(), amountNumber);
 				}
 			}
 		} else {

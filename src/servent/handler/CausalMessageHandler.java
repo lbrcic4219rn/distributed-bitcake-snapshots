@@ -18,7 +18,9 @@ public class CausalMessageHandler implements MessageHandler {
     private SnapshotCollector snapshotCollector;
     private static Set<Message> receivedBroadcasts = Collections.newSetFromMap(new ConcurrentHashMap<Message, Boolean>());
     public CausalMessageHandler(Message clientMessage, boolean doRebroadcast, SnapshotCollector snapshotCollector) {
-
+        this.clientMessage = clientMessage;
+        this.doRebroadcast = doRebroadcast;
+        this.snapshotCollector = snapshotCollector;
     }
 
     @Override

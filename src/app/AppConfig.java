@@ -124,6 +124,7 @@ public class AppConfig {
 		if (snapshotType == null) {
 			snapshotType = "none";
 		}
+		CausalBroadcastShared.initializeVectorClock(serventCount);
 		switch (snapshotType) {
 			case "ab":
 				SNAPSHOT_TYPE = SnapshotType.ACHARYA_BADRINATH;

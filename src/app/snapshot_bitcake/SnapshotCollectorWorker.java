@@ -83,10 +83,11 @@ public class SnapshotCollectorWorker implements SnapshotCollector {
 			switch (snapshotType) {
 				case ACHARYA_BADRINATH:
 					((AcharyaBadrinathBitcakeManager)bitcakeManager).sendToken(this);
-
+					break;
 
 				case ALAGAR_VENKATESAN:
 					((AlagarVenkatesanBitcakeManager)bitcakeManager).sendToken();
+					break;
 
 				case NONE:
 					//Shouldn't be able to come here. See constructor.

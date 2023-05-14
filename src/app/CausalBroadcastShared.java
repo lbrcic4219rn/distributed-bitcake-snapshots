@@ -47,7 +47,8 @@ public class CausalBroadcastShared {
     public static boolean isEmptyPending(){return pendingMessages.isEmpty();}
 
     public static void incrementClock(int serventId) {
-        vectorClock.computeIfPresent(serventId, new BiFunction<Integer, Integer, Integer>() {
+        vectorClock.computeIfPresent(serventId,
+                new BiFunction<Integer, Integer, Integer>() {
 
             @Override
             public Integer apply(Integer key, Integer oldValue) {
@@ -103,7 +104,8 @@ public class CausalBroadcastShared {
                         switch (pendingMessage.getMessageType()) {
                             case TOKEN:
                                 incrementClock(pendingMessage.getOriginalSenderInfo().getId());
-                                commitedMessagesPoll.submit(new TokenHandler(pendingMessage,snapshotCollector.getBitcakeManager()));
+                                commitedMessagesPoll.submit(new
+                                        TokenHandler(pendingMessage,snapshotCollector.getBitcakeManager()));
                                 break;
                             case AB_TELL:
                                 incrementClock(pendingMessage.getOriginalSenderInfo().getId());

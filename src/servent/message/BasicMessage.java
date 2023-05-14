@@ -90,10 +90,10 @@ public class BasicMessage implements Message {
 		this.type = type;
 		this.originalSenderInfo = originalSenderInfo;
 		this.receiverInfo = receiverInfo;
-		this.senderVectorClock = senderVectorClock;
+
 		this.routeList = routeList;
 		this.messageText = messageText;
-		
+		this.senderVectorClock = senderVectorClock;
 		this.messageId = messageId;
 	}
 	
@@ -181,6 +181,6 @@ public class BasicMessage implements Message {
 
 	@Override
 	public Map<Integer, Integer> getSenderVectorClock() {
-		return null;
+		return senderVectorClock;
 	}
 }
