@@ -1,2 +1,26 @@
-# Project exclude paths
+# Build output
 /out/
+/build/
+/.gradle/
+
+# IntelliJ: per-user, plugin and generated state
+*.iml
+*.iws
+*.ipr
+.idea/workspace.xml
+.idea/shelf/
+.idea/uiDesigner.xml
+.idea/checkstyle-idea.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/gradle.xml
+.idea/compiler.xml
+.idea/jarRepositories.xml
+.idea/libraries/
+.idea/dataSources*
+.idea/httpRequests/
+.idea/usage.statistics.xml
+.idea/dictionaries/
+
+# OS
+.DS_Store
