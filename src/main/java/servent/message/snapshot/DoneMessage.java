@@ -1,17 +1,17 @@
 package servent.message.snapshot;
 
-import lombok.Getter;
-import app.AppConfig;
+import java.io.Serial;
 import app.ServentInfo;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 import servent.message.BasicMessage;
-import servent.message.Message;
 import servent.message.MessageType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+@SuperBuilder(toBuilder = true)
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class DoneMessage extends BasicMessage {
+    @Serial
     private static final long serialVersionUID = 2390820142409006505L;
     @Getter
     private int initiatorID;
@@ -19,41 +19,6 @@ public class DoneMessage extends BasicMessage {
     public DoneMessage(ServentInfo sender, ServentInfo receiver, int initiatorID) {
         super(MessageType.DONE, sender, receiver);
         this.initiatorID = initiatorID;
-    }
-
-    private DoneMessage(ServentInfo originalSenderInfo, ServentInfo receiverInfo,
-                        List<ServentInfo> routeList, String messageText, int messageId, Map<Integer, Integer> senderVectorClock, int initiatorID) {
-        super(MessageType.DONE,originalSenderInfo,receiverInfo,routeList, messageText,messageId,senderVectorClock);
-        this.initiatorID = initiatorID;
-    }
-
-    @Override
-    public Message changeReceiver(Integer newReceiverId) {
-        if (AppConfig.myServentInfo.getNeighbors().contains(newReceiverId)) {
-            ServentInfo newReceiverInfo = AppConfig.getInfoById(newReceiverId);
-
-            Message toReturn = new DoneMessage(getOriginalSenderInfo(),
-                    newReceiverInfo, getRoute(), getMessageText(), getMessageId(),getSenderVectorClock(),initiatorID);
-
-            return toReturn;
-        } else {
-            AppConfig.timestampedErrorPrint("Trying to make a message for " + newReceiverId + " who is not a neighbor.");
-
-            return null;
-        }
-
-    }
-
-    @Override
-    public Message makeMeASender() {
-        ServentInfo newRouteItem = AppConfig.myServentInfo;
-
-        List<ServentInfo> newRouteList = new ArrayList<>(getRoute());
-        newRouteList.add(newRouteItem);
-        Message toReturn = new DoneMessage(getOriginalSenderInfo(),
-                getReceiverInfo(), newRouteList, getMessageText(), getMessageId(),getSenderVectorClock(),initiatorID);
-
-        return toReturn;
     }
 
 }

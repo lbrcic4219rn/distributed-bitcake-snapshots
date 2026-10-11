@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 /**
  * This class implements the logic for starting multiple servent instances.
- * 
+ * <p>
  * To use it, invoke startServentTest with a directory name as parameter.
  * This directory should include:
  * <ul>
@@ -24,25 +24,77 @@ import java.util.Scanner;
  */
 public class MultipleServentStarter {
 
+    /**
+     * The parameter for this function should be the name of a directory that
+     * contains a servent_list.properties file which will describe our distributed system.
+     */
+    private static void startServentTest(String testName) {
+        List<Process> serventProcesses = new ArrayList<>();
+
+        AppConfig.readConfig(testName + "/servent_list.properties");
+
+        AppConfig.timestampedStandardPrint("Starting multiple servent runner. "
+                + "If servents do not finish on their own, type \"stop\" to finish them");
+
+        int serventCount = AppConfig.getServentCount();
+
+        for (int i = 0; i < serventCount; i++) {
+            try {
+                //Servents run on the same JVM and classpath as this starter, whichever build tool launched it.
+                String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+                ProcessBuilder builder = new ProcessBuilder(javaBin, "-cp", System.getProperty("java.class.path"), "app.ServentMain",
+                        testName + "/servent_list.properties", String.valueOf(i));
+
+                //We use files to read and write.
+                //System.out, System.err and System.in will point to these files.
+                builder.redirectOutput(new File(testName + "/output/servent" + i + "_out.txt"));
+                builder.redirectError(new File(testName + "/error/servent" + i + "_err.txt"));
+                builder.redirectInput(new File(testName + "/input/servent" + i + "_in.txt"));
+
+                //Starts the servent as a completely separate process.
+                Process p = builder.start();
+                serventProcesses.add(p);
+
+            } catch (IOException e) {
+                AppConfig.timestampedErrorPrint("Couldn't start servent " + i + " (" + e + ")");
+            }
+        }
+
+        Thread t = new Thread(new ServentCLI(serventProcesses));
+
+        t.start(); //CLI thread waiting for user to type "stop".
+
+        for (Process process : serventProcesses) {
+            try {
+                process.waitFor(); //Wait for graceful process finish.
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        AppConfig.timestampedStandardPrint("All servent processes finished. Type \"stop\" to exit.");
+    }
+
+    /**
+     * The first argument is the test directory (ab_snapshot or av_snapshot). Defaults to ab_snapshot.
+     */
+    public static void main(String[] args) {
+        startServentTest(args.length > 0 ? args[0] : "ab_snapshot");
+    }
+
 	/**
 	 * We will wait for user stop in a separate thread.
 	 * The main thread is waiting for processes to end naturally.
 	 */
-	private static class ServentCLI implements Runnable {
-		
-		private List<Process> serventProcesses;
-		
-		public ServentCLI(List<Process> serventProcesses) {
-			this.serventProcesses = serventProcesses;
-		}
-		
+	private record ServentCLI(List<Process> serventProcesses) implements Runnable {
+
 		@Override
 		public void run() {
 			Scanner sc = new Scanner(System.in);
-			
-			while(sc.hasNextLine()) {
+
+			while (sc.hasNextLine()) {
 				String line = sc.nextLine();
-				
+
 				if (line.equals("stop")) {
 					for (Process process : serventProcesses) {
 						process.destroy();
@@ -50,66 +102,8 @@ public class MultipleServentStarter {
 					break;
 				}
 			}
-			
+
 			sc.close();
 		}
-	}
-	
-	/**
-	 * The parameter for this function should be the name of a directory that
-	 * contains a servent_list.properties file which will describe our distributed system.
-	 */
-	private static void startServentTest(String testName) {
-		List<Process> serventProcesses = new ArrayList<>();
-		
-		AppConfig.readConfig(testName+"/servent_list.properties");
-		
-		AppConfig.timestampedStandardPrint("Starting multiple servent runner. "
-				+ "If servents do not finish on their own, type \"stop\" to finish them");
-		
-		int serventCount = AppConfig.getServentCount();
-		
-		for(int i = 0; i < serventCount; i++) {
-			try {
-				//Servents run on the same JVM and classpath as this starter, whichever build tool launched it.
-				String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-				ProcessBuilder builder = new ProcessBuilder(javaBin, "-cp", System.getProperty("java.class.path"), "app.ServentMain",
-						testName+"/servent_list.properties", String.valueOf(i));
-				
-				//We use files to read and write.
-				//System.out, System.err and System.in will point to these files.
-				builder.redirectOutput(new File(testName+"/output/servent" + i + "_out.txt"));
-				builder.redirectError(new File(testName+"/error/servent" + i + "_err.txt"));
-				builder.redirectInput(new File(testName+"/input/servent" + i + "_in.txt"));
-				
-				//Starts the servent as a completely separate process.
-				Process p = builder.start();
-				serventProcesses.add(p);
-				
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		Thread t = new Thread(new ServentCLI(serventProcesses));
-		
-		t.start(); //CLI thread waiting for user to type "stop".
-		
-		for (Process process : serventProcesses) {
-			try {
-				process.waitFor(); //Wait for graceful process finish.
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		AppConfig.timestampedStandardPrint("All servent processes finished. Type \"stop\" to exit.");
-	}
-	
-	/**
-	 * The first argument is the test directory (ab_snapshot or av_snapshot). Defaults to ab_snapshot.
-	 */
-	public static void main(String[] args) {
-		startServentTest(args.length > 0 ? args[0] : "ab_snapshot");
 	}
 }

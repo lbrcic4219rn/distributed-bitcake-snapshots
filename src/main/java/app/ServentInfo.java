@@ -1,6 +1,5 @@
 package app;
 
-import lombok.Getter;
 import java.io.Serializable;
 import java.util.List;
 
@@ -9,26 +8,15 @@ import java.util.List;
  *
  * @author bmilojkovic
  */
-@Getter
-public class ServentInfo implements Serializable {
+public record ServentInfo(int id, String ipAddress, int listenerPort, List<Integer> neighbors) implements Serializable {
 
-	private static final long serialVersionUID = 5304170042791281555L;
-	private final int id;
-	private final String ipAddress;
-	private final int listenerPort;
-	private final List<Integer> neighbors;
-	
-	public ServentInfo(String ipAddress, int id, int listenerPort, List<Integer> neighbors) {
-		this.ipAddress = ipAddress;
-		this.listenerPort = listenerPort;
-		this.id = id;
-		this.neighbors = neighbors;
-	}
+    public ServentInfo(String ipAddress, int id, int listenerPort, List<Integer> neighbors) {
+        this(id, ipAddress, listenerPort, neighbors);
+    }
 
-	
-	
-	@Override
-	public String toString() {
-		return "[" + id + "|" + ipAddress + "|" + listenerPort + "]";
-	}
+
+    @Override
+    public String toString() {
+        return "[" + id + "|" + ipAddress + "|" + listenerPort + "]";
+    }
 }

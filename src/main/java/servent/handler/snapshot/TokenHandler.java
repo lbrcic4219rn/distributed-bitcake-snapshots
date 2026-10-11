@@ -1,9 +1,10 @@
 package servent.handler.snapshot;
 
-import lombok.RequiredArgsConstructor;
+import app.AppConfig;
 import app.snapshot_bitcake.AcharyaBadrinathBitcakeManager;
 import app.snapshot_bitcake.AlagarVenkatesanBitcakeManager;
 import app.snapshot_bitcake.BitcakeManager;
+import lombok.RequiredArgsConstructor;
 import servent.handler.MessageHandler;
 import servent.message.Message;
 
@@ -14,13 +15,13 @@ public class TokenHandler implements MessageHandler {
 
     @Override
     public void run() {
-        try{
-            if(bitcakeManager instanceof AcharyaBadrinathBitcakeManager)
-                ((AcharyaBadrinathBitcakeManager)bitcakeManager).sendTell(clientMessage.getOriginalSenderInfo().getId());
-            if(bitcakeManager instanceof AlagarVenkatesanBitcakeManager)
-                ((AlagarVenkatesanBitcakeManager)bitcakeManager).receiveToken(clientMessage.getSenderVectorClock(), clientMessage.getOriginalSenderInfo().getId());
+        try {
+            if (bitcakeManager instanceof AcharyaBadrinathBitcakeManager abBitcakeManager)
+                abBitcakeManager.sendTell(clientMessage.getOriginalSenderInfo().id());
+            if (bitcakeManager instanceof AlagarVenkatesanBitcakeManager avBitcakeManager)
+                avBitcakeManager.receiveToken(clientMessage.getSenderVectorClock(), clientMessage.getOriginalSenderInfo().id());
         } catch (Exception e) {
-            e.printStackTrace();
+            AppConfig.timestampedErrorPrint("TokenHandler failed (" + e + ")");
         }
     }
 }

@@ -24,3 +24,9 @@
 
 # OS
 .DS_Store
+
+# Scenario run logs (rewritten on every run); .gitkeep keeps the directories the starter writes into
+/*_snapshot/output/*
+/*_snapshot/error/*
+!/*_snapshot/output/.gitkeep
+!/*_snapshot/error/.gitkeep

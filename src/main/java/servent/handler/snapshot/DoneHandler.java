@@ -1,8 +1,8 @@
 package servent.handler.snapshot;
 
-import lombok.RequiredArgsConstructor;
 import app.AppConfig;
 import app.snapshot_bitcake.SnapshotCollector;
+import lombok.RequiredArgsConstructor;
 import servent.handler.MessageHandler;
 import servent.message.Message;
 import servent.message.MessageType;
@@ -15,13 +15,13 @@ public class DoneHandler implements MessageHandler {
     @Override
     public void run() {
         try {
-            if(clientMessage.getMessageType() == MessageType.DONE) {
-                snapshotCollector.addDoneMessage(clientMessage.getOriginalSenderInfo().getId());
+            if (clientMessage.getMessageType() == MessageType.DONE) {
+                snapshotCollector.addDoneMessage(clientMessage.getOriginalSenderInfo().id());
             } else {
                 AppConfig.timestampedErrorPrint("Tell amount handler got: " + clientMessage);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            AppConfig.timestampedErrorPrint("DoneHandler failed (" + e + ")");
         }
     }
 }

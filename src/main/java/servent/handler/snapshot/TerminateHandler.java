@@ -9,9 +9,9 @@ import servent.message.Message;
 import servent.message.MessageType;
 
 public class TerminateHandler implements MessageHandler {
-    private Message clientMessage;
-    private BitcakeManager bitcakeManager;
-    private SnapshotCollector snapshotCollector;
+    private final Message clientMessage;
+    private final BitcakeManager bitcakeManager;
+    private final SnapshotCollector snapshotCollector;
 
     public TerminateHandler(Message clientMessage, SnapshotCollector snapshotCollector) {
         this.clientMessage = clientMessage;
@@ -23,13 +23,12 @@ public class TerminateHandler implements MessageHandler {
     public void run() {
         try {
             if (clientMessage.getMessageType() == MessageType.TERMINATE) {
-                ((AlagarVenkatesanBitcakeManager)bitcakeManager).receiveTerminate(snapshotCollector);
+                ((AlagarVenkatesanBitcakeManager) bitcakeManager).receiveTerminate(snapshotCollector);
             } else {
                 AppConfig.timestampedErrorPrint("Tell amount handler got: " + clientMessage);
             }
-        }
-        catch (Exception e){
-            e.printStackTrace();
+        } catch (Exception e) {
+            AppConfig.timestampedErrorPrint("TerminateHandler failed (" + e + ")");
         }
     }
 }
